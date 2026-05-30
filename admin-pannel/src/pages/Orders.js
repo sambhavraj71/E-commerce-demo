@@ -120,7 +120,7 @@ const Orders = () => {
                   <td style={{ padding: '12px' }}>{new Date(order.createdAt).toLocaleDateString()}</td>
                   <td style={{ padding: '12px' }}>
                     <button
-                      onClick={() => window.open(`http://localhost:3000/order/${order._id}`, '_blank')}
+                      onClick={() => window.open(`https://ecommerce-backend-sambhav.onrender.com/api/order/${order._id}`, '_blank')}
                       style={{
                         padding: '4px 12px',
                         cursor: 'pointer',
