@@ -15,7 +15,7 @@ const Products = () => {
   const fetchProducts = async () => {
     try {
       const response = await axios.get(
-        'http://localhost:5000/api/products'
+        'https://ecommerce-backend-sambhav.onrender.com/api/products'
       );
 
       setProducts(response.data?.data || []);
@@ -38,7 +38,7 @@ const Products = () => {
       const token = localStorage.getItem('adminToken');
 
       await axios.delete(
-        `http://localhost:5000/api/products/${productId}`,
+        `https://ecommerce-backend-sambhav.onrender.com/api/products/${productId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
