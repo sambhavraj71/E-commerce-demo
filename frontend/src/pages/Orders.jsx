@@ -27,15 +27,16 @@ const Orders = () => {
   };
 
   const viewOrderDetails = async (orderId) => {
-    try {
-      const response = await api.get(`/orders/${orderId}`);
-      setSelectedOrder(response.data.data);
-      setShowModal(true);
-    } catch (error) {
-      console.error('Error fetching order details:', error);
-      alert('Could not fetch order details');
-    }
-  };
+  try {
+    // ✅ API instance automatically sahi URL use karega
+    const response = await api.get(`/orders/${orderId}`);
+    setSelectedOrder(response.data.data);
+    setShowModal(true);
+  } catch (error) {
+    console.error('Error fetching order details:', error);
+    toast.error('Could not fetch order details');
+  }
+};
 
   const getStatusIcon = (status) => {
     switch (status) {
