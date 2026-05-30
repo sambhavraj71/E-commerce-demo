@@ -14,7 +14,7 @@ const Users = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('https://ecommerce-backend-sambhav.onrender.com/users');
+      const response = await axios.get('https://ecommerce-backend-sambhav.onrender.com/api/users');
       setUsers(response.data.users || []);
     } catch (error) {
       console.error('Error fetching users:', error);
