@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FiStar, FiThumbsUp, FiUser, FiClock, FiEdit2, FiX } from 'react-icons/fi';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import api from '../services/api';
 
 const ProductReviews = ({ productId }) => {
   const [reviews, setReviews] = useState([]);
@@ -22,7 +23,7 @@ const ProductReviews = ({ productId }) => {
 
   const fetchReviews = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/reviews/product/${productId}`);
+      const response = await api.get(`/reviews/product/${productId}`);
       setReviews(response.data.data || []);
     } catch (error) {
       console.error('Error fetching reviews:', error);
