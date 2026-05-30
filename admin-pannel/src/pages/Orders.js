@@ -14,7 +14,7 @@ const Orders = () => {
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get('https://ecommerce-backend-sambhav.onrender.com/orders', {
+      const response = await axios.get('https://ecommerce-backend-sambhav.onrender.com/api/orders', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setOrders(response.data.data || []);
