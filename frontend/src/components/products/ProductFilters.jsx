@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
-import axios from 'axios';
+// CHANGE: Import api instead of axios
+import api from '../../services/api';
 import { setFilters, fetchProducts } from '../../redux/slices/productSlice';
 
 const ProductFilters = () => {
@@ -19,9 +20,10 @@ const ProductFilters = () => {
     fetchCategories();
   }, []);
 
+  // FIXED: Use api instance instead of axios
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/categories');
+      const response = await api.get('/categories');
       setCategories(response.data.data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
