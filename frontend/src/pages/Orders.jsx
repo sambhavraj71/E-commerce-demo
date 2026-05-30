@@ -130,7 +130,7 @@ const Orders = () => {
                   <div className="mt-4 pt-4 border-t flex justify-between items-center">
                     <div>
                       <p className="text-sm text-gray-500">Total Amount</p>
-                      <p className="text-xl font-bold">₹{order.totalPrice}</p>
+                      <p className="text-xl font-bold">₹{order.totalPrice?.toFixed(2)}</p>
                     </div>
                     {order.orderStatus === 'delivered' && (
                       <button className="text-sm text-black border px-4 py-2 rounded-lg hover:bg-black hover:text-white transition-colors">
