@@ -39,6 +39,7 @@ const Login = () => {
       }
     } catch (error) {
       console.error('Login failed:', error);
+      toast.error(error.response?.data?.message || 'Login failed. Please try again.');
     } finally {
       setSubmitting(false);
     }
