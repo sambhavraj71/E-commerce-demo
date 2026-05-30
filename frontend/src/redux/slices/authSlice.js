@@ -1,87 +1,67 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../services/api';
-import toast from 'react-hot-toast';
 
+// Login thunk
 export const loginUser = createAsyncThunk(
   'auth/login',
   async (credentials, { rejectWithValue }) => {
     try {
-      console.log('Sending login request:', credentials);
       const response = await api.post('/auth/login', credentials);
-      console.log('Login response:', response.data);
-      
       if (response.data.success && response.data.token) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
       }
-      
       return response.data;
     } catch (error) {
-      console.error('Login error:', error);
       return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
 
+// Register thunk
 export const registerUser = createAsyncThunk(
   'auth/register',
-  async ({ name, email, password, phone }, { rejectWithValue }) => {
+  async (userData, { rejectWithValue }) => {
     try {
-      const response = await api.post('/auth/register', { name, email, password, phone });
-      console.log('Register response:', response.data);
-      
+      const response = await api.post('/auth/register', userData);
       if (response.data.success && response.data.token) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
-        toast.success('Registration successful!');
-        return response.data;
-      } else {
-        throw new Error(response.data.message || 'Registration failed');
       }
+      return response.data;
     } catch (error) {
-      console.error('Register error:', error);
-      const message = error.response?.data?.message || error.message || 'Registration failed';
-      toast.error(message);
-      return rejectWithValue(message);
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
 
-// Load initial state from localStorage
-const loadUserFromStorage = () => {
-  try {
-    const userStr = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
-    if (userStr && token) {
-      const user = JSON.parse(userStr);
-      console.log('Loaded user from storage:', user);
-      return { user, token, isAuthenticated: true };
-    }
-  } catch (error) {
-    console.error('Error loading user from storage:', error);
-  }
-  return { user: null, token: null, isAuthenticated: false };
+const initialState = {
+  user: JSON.parse(localStorage.getItem('user') || 'null'),
+  token: localStorage.getItem('token') || null,
+  isLoading: false,
+  isAuthenticated: !!localStorage.getItem('token'),
+  error: null,
 };
-
-const { user: initialUser, token: initialToken, isAuthenticated: initialAuth } = loadUserFromStorage();
 
 const authSlice = createSlice({
   name: 'auth',
-  initialState: {
-    user: initialUser,
-    token: initialToken,
-    isAuthenticated: initialAuth,
-    isLoading: false,
-    error: null,
-  },
+  initialState,
   reducers: {
     logout: (state) => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      toast.success('Logged out successfully');
+      state.error = null;
+    },
+    // ✅ YEH REDUCER ADD KARO
+    setUser: (state, action) => {
+      state.user = action.payload;
+      state.isAuthenticated = true;
+      if (action.payload) {
+        localStorage.setItem('user', JSON.stringify(action.payload));
+      }
     },
     clearError: (state) => {
       state.error = null;
@@ -89,47 +69,46 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Login cases
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
+        state.isAuthenticated = true;
         state.user = action.payload.user;
         state.token = action.payload.token;
-        state.isAuthenticated = true;
         state.error = null;
-        console.log('Auth state updated - User:', state.user);
-        console.log('Auth state updated - Token:', state.token);
-        console.log('Auth state updated - IsAuthenticated:', state.isAuthenticated);
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload;
+        state.isAuthenticated = false;
         state.user = null;
         state.token = null;
-        state.isAuthenticated = false;
+        state.error = action.payload?.message || 'Login failed';
       })
+      // Register cases
       .addCase(registerUser.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.isLoading = false;
+        state.isAuthenticated = true;
         state.user = action.payload.user;
         state.token = action.payload.token;
-        state.isAuthenticated = true;
         state.error = null;
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload;
+        state.isAuthenticated = false;
         state.user = null;
         state.token = null;
-        state.isAuthenticated = false;
+        state.error = action.payload?.message || 'Registration failed';
       });
   },
 });
 
-export const { logout, clearError } = authSlice.actions;
+export const { logout, setUser, clearError } = authSlice.actions;
 export default authSlice.reducer;
