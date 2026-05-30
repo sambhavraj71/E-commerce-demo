@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FiStar, FiThumbsUp, FiUser, FiClock, FiEdit2, FiX } from 'react-icons/fi';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import api from '../services/api';
+import api from '../../services/api';
 
 const ProductReviews = ({ productId }) => {
   const [reviews, setReviews] = useState([]);
