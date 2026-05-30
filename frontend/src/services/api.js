@@ -1,7 +1,8 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+// ✅ LIVE BACKEND URL (localhost hatao)
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://ecommerce-backend-sambhav.onrender.com';
 
 const api = axios.create({
   baseURL: `${API_BASE_URL}/api`,
@@ -29,15 +30,16 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
-      console.error('❌ Backend connection failed');
+    if (error.code === 'ERR_NETWORK') {
       toast.error('Cannot connect to server');
     }
-    if (error.response?.status === 401 && !window.location.pathname.includes('/login')) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
-      toast.error('Session expired. Please login again.');
+    if (error.response?.status === 401) {
+      if (!window.location.pathname.includes('/login')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+        toast.error('Session expired. Please login again.');
+      }
     }
     return Promise.reject(error);
   }
