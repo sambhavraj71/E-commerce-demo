@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "logs\\.d5d0e9c49df5f0dfe9f2016caaf8c07143611065-audit.json",
+    "files": [
+        {
+            "date": 1780006314908,
+            "name": "logs\\textura-2026-05-29.log",
+            "hash": "7b5337824de1f93be7cffa9ae8f0d0eeb6aa7113abd1432f24f19d1c251d5b58"
+        }
+    ],
+    "hashType": "sha256"
+}

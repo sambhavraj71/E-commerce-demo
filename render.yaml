@@ -1,0 +1,59 @@
+services:
+  # Backend API
+  - type: web
+    name: textura-backend
+    runtime: node
+    repo: https://github.com/YOUR_USERNAME/textura
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: FRONTEND_URL
+        value: https://textura-frontend.onrender.com
+      - key: ADMIN_URL
+        value: https://textura-admin.onrender.com
+
+  # Frontend Website
+  - type: web
+    name: textura-frontend
+    runtime: static
+    repo: https://github.com/YOUR_USERNAME/textura
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: build
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://textura-backend.onrender.com/api
+
+  # Admin Panel
+  - type: web
+    name: textura-admin
+    runtime: static
+    repo: https://github.com/YOUR_USERNAME/textura
+    plan: free
+    rootDir: admin-pannel
+    buildCommand: npm install && npm run build
+    staticPublishPath: build
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://textura-backend.onrender.com/api
