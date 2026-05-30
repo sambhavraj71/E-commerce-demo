@@ -8,6 +8,8 @@ import Loader from '../components/common/Loader';
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -21,6 +23,17 @@ const Orders = () => {
       console.error('Error fetching orders:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const viewOrderDetails = async (orderId) => {
+    try {
+      const response = await api.get(`/orders/${orderId}`);
+      setSelectedOrder(response.data.data);
+      setShowModal(true);
+    } catch (error) {
+      console.error('Error fetching order details:', error);
+      alert('Could not fetch order details');
     }
   };
 
@@ -93,13 +106,13 @@ const Orders = () => {
                         <span className="capitalize">{order.orderStatus}</span>
                       </div>
                     </div>
-                    <Link
-                      to={`/order/${order._id}`}
+                    <button
+                      onClick={() => viewOrderDetails(order._id)}
                       className="text-black hover:text-gray-600 flex items-center space-x-1"
                     >
                       <FiEye size={16} />
                       <span>View Details</span>
-                    </Link>
+                    </button>
                   </div>
                 </div>
 
@@ -116,7 +129,7 @@ const Orders = () => {
                         <div className="flex-1">
                           <h4 className="font-semibold">{item.name}</h4>
                           <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-                          <p className="text-sm font-medium">₹{item.price}</p>
+                          <p className="text-sm font-medium">₹{item.price?.toFixed(2)}</p>
                         </div>
                       </div>
                     ))}
@@ -149,6 +162,56 @@ const Orders = () => {
           </div>
         )}
       </div>
+
+      {/* Order Details Modal */}
+      {showModal && selectedOrder && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-auto">
+            <h2 className="text-xl font-bold mb-4">Order Details</h2>
+            
+            <div className="space-y-3">
+              <p><strong>Order ID:</strong> {selectedOrder._id}</p>
+              <p><strong>Date:</strong> {new Date(selectedOrder.createdAt).toLocaleDateString()}</p>
+              <p><strong>Status:</strong> {selectedOrder.orderStatus}</p>
+              <p><strong>Payment:</strong> {selectedOrder.paymentStatus}</p>
+              
+              <div className="border-t pt-3">
+                <p className="font-semibold mb-2">Items:</p>
+                {selectedOrder.orderItems?.map((item, idx) => (
+                  <div key={idx} className="flex justify-between text-sm mb-1">
+                    <span>{item.name} x {item.quantity}</span>
+                    <span>₹{item.price?.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="border-t pt-3">
+                <div className="flex justify-between font-bold mt-2">
+                  <span>Total:</span>
+                  <span>₹{selectedOrder.totalPrice?.toFixed(2)}</span>
+                </div>
+              </div>
+              
+              {selectedOrder.shippingAddress && (
+                <div className="border-t pt-3">
+                  <p className="font-semibold">Shipping Address:</p>
+                  <p className="text-sm">{selectedOrder.shippingAddress.fullName}</p>
+                  <p className="text-sm">{selectedOrder.shippingAddress.addressLine1}</p>
+                  <p className="text-sm">{selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}</p>
+                  <p className="text-sm">Phone: {selectedOrder.shippingAddress.phone}</p>
+                </div>
+              )}
+            </div>
+            
+            <button
+              onClick={() => setShowModal(false)}
+              className="mt-6 w-full px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
