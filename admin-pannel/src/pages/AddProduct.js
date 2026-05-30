@@ -26,7 +26,7 @@ const AddProduct = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/categories');
+      const response = await axios.get('https://ecommerce-backend-sambhav.onrender.com/categories');
       setCategories(response.data.data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -73,7 +73,7 @@ const AddProduct = () => {
         isPublished: formData.isPublished
       };
       
-      const response = await axios.post('http://localhost:5000/api/products', productData, {
+      const response = await axios.post('https://ecommerce-backend-sambhav.onrender.com/products', productData, {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -88,7 +88,7 @@ const AddProduct = () => {
           formDataImages.append('images', file);
         });
         
-        await axios.post(`http://localhost:5000/api/products/${product._id}/images`, formDataImages, {
+        await axios.post(`https://ecommerce-backend-sambhav.onrender.com/products/${product._id}/images`, formDataImages, {
           headers: { 
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'multipart/form-data'
