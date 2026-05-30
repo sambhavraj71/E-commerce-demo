@@ -22,16 +22,16 @@ const Dashboard = () => {
       console.log('Fetching stats with token:', token ? 'Present' : 'Missing');
       
       // Fetch products (no auth required)
-      const productsRes = await axios.get('http://localhost:5000/api/products');
+      const productsRes = await axios.get('https://ecommerce-backend-sambhav.onrender.com/products');
       
       // Fetch users (no auth required for now)
-      const usersRes = await axios.get('http://localhost:5000/api/users');
+      const usersRes = await axios.get('https://ecommerce-backend-sambhav.onrender.com/users');
       
       // Fetch orders (requires auth token)
       let ordersRes = { data: { data: [] } };
       if (token) {
         try {
-          ordersRes = await axios.get('http://localhost:5000/api/orders', {
+          ordersRes = await axios.get('https://ecommerce-backend-sambhav.onrender.com/orders', {
             headers: { 
               'Authorization': `Bearer ${token}`
             }
