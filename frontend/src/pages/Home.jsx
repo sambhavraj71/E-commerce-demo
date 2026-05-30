@@ -5,7 +5,8 @@ import {
   FiArrowRight, FiTruck, FiShield, FiRefreshCw, FiHeadphones,
   FiPackage, FiPrinter, FiUsers, FiGift, FiWatch, FiSmartphone
 } from 'react-icons/fi';
-import axios from 'axios';
+// CHANGE: Import api instead of axios
+import api from '../services/api';
 import ProductCard from '../components/products/ProductCard';
 import { fetchFeaturedProducts } from '../redux/slices/productSlice';
 import { useDispatch, useSelector } from 'react-redux';
@@ -42,9 +43,10 @@ const Home = () => {
     fetchCategories();
   }, [dispatch]);
 
+  // FIXED: Use api instance instead of axios
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/categories');
+      const response = await api.get('/categories');
       setCategories(response.data.data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
