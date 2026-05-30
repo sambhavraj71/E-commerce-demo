@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import { FiUser, FiMail, FiPhone, FiMapPin, FiEdit2, FiSave, FiX, FiTrash2 } from 'react-icons/fi';
+import { FiUser, FiMail, FiPhone, FiEdit2, FiSave, FiX, FiTrash2 } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import api from '../services/api';
-import { logout } from '../redux/slices/authSlice';
+import { logout, setUser } from '../redux/slices/authSlice';
 import toast from 'react-hot-toast';
 import Loader from '../components/common/Loader';
 
@@ -49,13 +49,32 @@ const Profile = () => {
 
   const handleProfileUpdate = async (values) => {
     try {
-      await api.put('/auth/profile', values);
-      toast.success('Profile updated successfully');
-      setIsEditing(false);
-      const updatedUser = { ...user, ...values };
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      const response = await api.put('/auth/profile', {
+        name: values.name,
+        phone: values.phone
+      });
+      
+      if (response.data.success) {
+        // Update local storage
+        const updatedUser = { 
+          ...user, 
+          name: values.name, 
+          phone: values.phone || '' 
+        };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        
+        // Update Redux state
+        dispatch(setUser(updatedUser));
+        
+        toast.success('Profile updated successfully');
+        setIsEditing(false);
+        
+        // Refresh addresses to update phone in address form
+        fetchAddresses();
+      }
     } catch (error) {
-      toast.error('Failed to update profile');
+      console.error('Update error:', error);
+      toast.error(error.response?.data?.message || 'Failed to update profile');
     }
   };
 
@@ -91,6 +110,17 @@ const Profile = () => {
     } catch (error) {
       toast.error('Failed to update default address');
     }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Not available';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'Not available';
+    return date.toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
   };
 
   if (loading) return <Loader />;
@@ -181,7 +211,7 @@ const Profile = () => {
                     </div>
                     <div className="flex flex-col md:flex-row md:items-center py-2">
                       <div className="md:w-32 text-gray-500 font-medium">Member Since:</div>
-                      <div className="flex-1">{new Date(user?.createdAt).toLocaleDateString()}</div>
+                      <div className="flex-1">{formatDate(user?.createdAt)}</div>
                     </div>
                   </div>
                 ) : (
@@ -200,7 +230,7 @@ const Profile = () => {
                             value={values.name}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            className="input-field"
+                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                           />
                           {errors.name && touched.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
                         </div>
@@ -212,11 +242,12 @@ const Profile = () => {
                             value={values.phone}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            className="input-field"
+                            placeholder="Enter 10-digit mobile number"
+                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                           />
                           {errors.phone && touched.phone && <p className="text-sm text-red-500 mt-1">{errors.phone}</p>}
                         </div>
-                        <button type="submit" disabled={isSubmitting} className="btn-primary">
+                        <button type="submit" disabled={isSubmitting} className="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition">
                           <FiSave size={16} className="inline mr-2" />
                           Save Changes
                         </button>
@@ -273,7 +304,7 @@ const Profile = () => {
                                 value={values.fullName}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
-                                className="input-field"
+                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                               />
                               {errors.fullName && touched.fullName && <p className="text-sm text-red-500">{errors.fullName}</p>}
                             </div>
@@ -285,7 +316,7 @@ const Profile = () => {
                                 value={values.phone}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
-                                className="input-field"
+                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                               />
                               {errors.phone && touched.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
                             </div>
@@ -297,7 +328,7 @@ const Profile = () => {
                                 value={values.addressLine1}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
-                                className="input-field"
+                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                               />
                               {errors.addressLine1 && touched.addressLine1 && <p className="text-sm text-red-500">{errors.addressLine1}</p>}
                             </div>
@@ -308,7 +339,7 @@ const Profile = () => {
                                 placeholder="Address Line 2 (Optional)"
                                 value={values.addressLine2}
                                 onChange={handleChange}
-                                className="input-field"
+                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                               />
                             </div>
                             <div>
@@ -319,7 +350,7 @@ const Profile = () => {
                                 value={values.city}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
-                                className="input-field"
+                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                               />
                               {errors.city && touched.city && <p className="text-sm text-red-500">{errors.city}</p>}
                             </div>
@@ -331,7 +362,7 @@ const Profile = () => {
                                 value={values.state}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
-                                className="input-field"
+                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                               />
                               {errors.state && touched.state && <p className="text-sm text-red-500">{errors.state}</p>}
                             </div>
@@ -343,7 +374,7 @@ const Profile = () => {
                                 value={values.postalCode}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
-                                className="input-field"
+                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                               />
                               {errors.postalCode && touched.postalCode && <p className="text-sm text-red-500">{errors.postalCode}</p>}
                             </div>
@@ -352,7 +383,7 @@ const Profile = () => {
                                 name="addressType"
                                 value={values.addressType}
                                 onChange={handleChange}
-                                className="input-field"
+                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                               >
                                 <option value="home">Home</option>
                                 <option value="work">Work</option>
@@ -361,13 +392,13 @@ const Profile = () => {
                             </div>
                           </div>
                           <div className="flex space-x-3">
-                            <button type="submit" disabled={isSubmitting} className="btn-primary">
+                            <button type="submit" disabled={isSubmitting} className="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition">
                               Save Address
                             </button>
                             <button
                               type="button"
                               onClick={() => setShowAddressForm(false)}
-                              className="px-4 py-2 border rounded-lg"
+                              className="px-4 py-2 border rounded-lg hover:bg-gray-50 transition"
                             >
                               Cancel
                             </button>
