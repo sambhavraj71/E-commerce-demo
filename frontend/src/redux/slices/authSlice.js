@@ -4,25 +4,21 @@ import toast from 'react-hot-toast';
 
 export const loginUser = createAsyncThunk(
   'auth/login',
-  async ({ email, password }, { rejectWithValue }) => {
+  async (credentials, { rejectWithValue }) => {
     try {
-      console.log('Sending login request:', { email });
-      const response = await api.post('/auth/login', { email, password });
+      console.log('Sending login request:', credentials);
+      const response = await api.post('/auth/login', credentials);
       console.log('Login response:', response.data);
       
       if (response.data.success && response.data.token) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
-        toast.success('Login successful!');
-        return response.data;
-      } else {
-        throw new Error(response.data.message || 'Login failed');
       }
+      
+      return response.data;
     } catch (error) {
       console.error('Login error:', error);
-      const message = error.response?.data?.message || error.message || 'Login failed';
-      toast.error(message);
-      return rejectWithValue(message);
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
