@@ -17,21 +17,19 @@ const Dashboard = () => {
 
   const fetchStats = async () => {
     try {
-      // Get token directly from localStorage
-      const token = localStorage.getItem('adminToken');
+      // Get token - use 'token' instead of 'adminToken' (based on your auth logs)
+      const token = localStorage.getItem('token');
       console.log('Fetching stats with token:', token ? 'Present' : 'Missing');
       
-      // Fetch products (no auth required)
-      const productsRes = await axios.get('https://ecommerce-backend-sambhav.onrender.com/products');
+      // FIXED: Added /api prefix to all URLs
+      const productsRes = await axios.get('https://ecommerce-backend-sambhav.onrender.com/api/products');
+      const usersRes = await axios.get('https://ecommerce-backend-sambhav.onrender.com/api/users');
       
-      // Fetch users (no auth required for now)
-      const usersRes = await axios.get('https://ecommerce-backend-sambhav.onrender.com/users');
-      
-      // Fetch orders (requires auth token)
+      // Fetch orders with auth token
       let ordersRes = { data: { data: [] } };
       if (token) {
         try {
-          ordersRes = await axios.get('https://ecommerce-backend-sambhav.onrender.com/orders', {
+          ordersRes = await axios.get('https://ecommerce-backend-sambhav.onrender.com/api/orders', {
             headers: { 
               'Authorization': `Bearer ${token}`
             }
@@ -41,11 +39,14 @@ const Dashboard = () => {
         }
       }
       
+      // Calculate total revenue from orders
+      const totalRevenue = ordersRes.data.data?.reduce((sum, order) => sum + (order.totalPrice || 0), 0) || 0;
+      
       setStats({
         totalProducts: productsRes.data.data?.length || 0,
         totalOrders: ordersRes.data.data?.length || 0,
         totalUsers: usersRes.data.users?.length || 0,
-        totalRevenue: 0
+        totalRevenue: totalRevenue
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -58,7 +59,7 @@ const Dashboard = () => {
     { title: 'Total Products', value: stats.totalProducts, icon: <FiPackage size={24} />, color: '#3b82f6' },
     { title: 'Total Orders', value: stats.totalOrders, icon: <FiShoppingBag size={24} />, color: '#10b981' },
     { title: 'Total Users', value: stats.totalUsers, icon: <FiUsers size={24} />, color: '#8b5cf6' },
-    { title: 'Total Revenue', value: `₹${stats.totalRevenue}`, icon: <FiDollarSign size={24} />, color: '#ef4444' },
+    { title: 'Total Revenue', value: `₹${stats.totalRevenue.toLocaleString()}`, icon: <FiDollarSign size={24} />, color: '#ef4444' },
   ];
 
   if (loading) {
