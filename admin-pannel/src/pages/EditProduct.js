@@ -30,7 +30,7 @@ const EditProduct = () => {
   const fetchProduct = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get(`http://localhost:5000/api/products/${id}`);
+      const response = await axios.get(`https://ecommerce-backend-sambhav.onrender.com/products/${id}`);
       const product = response.data.data;
       
       setFormData({
@@ -53,7 +53,7 @@ const EditProduct = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/categories');
+      const response = await axios.get('https://ecommerce-backend-sambhav.onrender.com/categories');
       setCategories(response.data.data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -79,7 +79,7 @@ const EditProduct = () => {
   const handleRemoveExistingImage = async (imageId) => {
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.delete(`http://localhost:5000/api/products/${id}/images/${imageId}`, {
+      await axios.delete(`https://ecommerce-backend-sambhav.onrender.com/products/${id}/images/${imageId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setExistingImages(existingImages.filter(img => img._id !== imageId));
@@ -108,7 +108,7 @@ const EditProduct = () => {
         isPublished: formData.isPublished
       };
       
-      await axios.put(`http://localhost:5000/api/products/${id}`, productData, {
+      await axios.put(`https://ecommerce-backend-sambhav.onrender.com/products/${id}`, productData, {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -122,7 +122,7 @@ const EditProduct = () => {
           formDataImages.append('images', file);
         });
         
-        await axios.post(`http://localhost:5000/api/products/${id}/images`, formDataImages, {
+        await axios.post(`https://ecommerce-backend-sambhav.onrender.com/products/${id}/images`, formDataImages, {
           headers: { 
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'multipart/form-data'
